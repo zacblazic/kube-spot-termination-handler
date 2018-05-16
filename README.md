@@ -1,2 +1,3 @@
-# kube-spot-termination-handler
-Gracefully handles spot instance termination notices.
+# Kubernetes Spot Termination Handler
+
+Handles spot instance terminations by gracefully draining the affected node.
