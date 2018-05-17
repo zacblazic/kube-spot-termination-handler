@@ -22,24 +22,21 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-
-	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+	"github.com/zacblazic/kube-spot-termination-handler/handler"
 )
 
-var rootCmd = &cobra.Command{
-	Use:   "kube-spot-termination-handler",
-	Short: "Handle spot instance terminations",
-	Long:  `Handle spot instance terminations by attempting to gracefully drain the node.`,
-}
-
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		log.Fatal(err)
-	}
+// startCmd represents the start command
+var startCmd = &cobra.Command{
+	Use:   "start",
+	Short: "Start the termination handler",
+	Long:  `Start the termination handler.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		handler := handler.NewTerminationHandler(nil, viper.GetDuration("interval"))
+		handler.Start()
+	},
 }
 
 func init() {
-	log.SetLevel(log.DebugLevel)
+	rootCmd.AddCommand(startCmd)
 }
