@@ -26,6 +26,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var verbose bool
+
 var rootCmd = &cobra.Command{
 	Use:   "kube-spot-termination-handler",
 	Short: "Handle spot instance terminations",
@@ -41,5 +43,13 @@ func Execute() {
 }
 
 func init() {
-	log.SetLevel(log.DebugLevel)
+	cobra.OnInitialize(initConfig)
+
+	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "enable verbose logging")
+}
+
+func initConfig() {
+	if verbose {
+		log.SetLevel(log.DebugLevel)
+	}
 }
