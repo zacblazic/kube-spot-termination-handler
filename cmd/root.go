@@ -21,11 +21,16 @@
 package cmd
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	log "github.com/sirupsen/logrus"
 )
 
+var configFile string
 var verbose bool
 
 var rootCmd = &cobra.Command{
@@ -45,10 +50,23 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
+	rootCmd.PersistentFlags().StringVar(&configFile, "config", "", "configuration file location")
 	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "enable verbose logging")
 }
 
 func initConfig() {
+	if configFile != "" {
+		viper.SetConfigFile(configFile)
+	} else {
+		viper.AddConfigPath(".")
+		viper.SetConfigName("config")
+	}
+
+	if err := viper.ReadInConfig(); err != nil {
+		fmt.Println("Can't read config:", err)
+		os.Exit(1)
+	}
+
 	if verbose {
 		log.SetLevel(log.DebugLevel)
 	}
