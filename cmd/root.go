@@ -23,17 +23,22 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
-)
+	"github.com/zacblazic/kube-spot-termination-handler/handler"
 
-var cfgFile string
+	log "github.com/sirupsen/logrus"
+)
 
 var rootCmd = &cobra.Command{
 	Use:   "kube-spot-termination-handler",
 	Short: "Handle spot instance terminations",
 	Long:  `Handle spot instance terminations by attempting to gracefully drain the node.`,
-	Run:   func(cmd *cobra.Command, args []string) {},
+	Run: func(cmd *cobra.Command, args []string) {
+		handler := handler.NewTerminationHandler(nil, time.Second*5)
+		handler.Start()
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -45,4 +50,6 @@ func Execute() {
 	}
 }
 
-func init() {}
+func init() {
+	log.SetLevel(log.DebugLevel)
+}
