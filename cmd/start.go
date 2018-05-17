@@ -21,6 +21,8 @@
 package cmd
 
 import (
+	"time"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/zacblazic/kube-spot-termination-handler/handler"
@@ -39,4 +41,8 @@ var startCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(startCmd)
+
+	startCmd.PersistentFlags().Duration("interval", time.Second*5, "interval at which the handler should check for termination notices")
+
+	viper.BindPFlag("interval", startCmd.PersistentFlags().Lookup("interval"))
 }
