@@ -52,6 +52,8 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&configFile, "config", "", "configuration file location")
 	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "enable verbose logging")
+
+	viper.AutomaticEnv()
 }
 
 func initConfig() {
