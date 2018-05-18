@@ -21,55 +21,28 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	log "github.com/sirupsen/logrus"
+	"github.com/zacblazic/kube-spot-termination-handler/handler"
 )
 
-var configFile string
-var verbose bool
-
-var rootCmd = &cobra.Command{
-	Use:   "kube-spot-termination-handler",
-	Short: "Handle spot instance terminations",
-	Long:  `Handle spot instance terminations by attempting to gracefully drain the node.`,
-}
-
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		log.Fatal(err)
-	}
+// startCmd represents the start command
+var startCmd = &cobra.Command{
+	Use:   "start",
+	Short: "Start the termination handler",
+	Long:  `Start the termination handler.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		handler := handler.NewTerminationHandler(nil, viper.GetDuration("interval"))
+		handler.Start()
+	},
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
+	rootCmd.AddCommand(startCmd)
 
-	rootCmd.PersistentFlags().StringVar(&configFile, "config", "", "configuration file location")
-	rootCmd.PersistentFlags().BoolVar(&verbose, "verbose", false, "enable verbose logging")
+	startCmd.PersistentFlags().Duration("interval", time.Second*5, "interval at which the handler should check for termination notices")
 
-	viper.AutomaticEnv()
-}
-
-func initConfig() {
-	if configFile != "" {
-		viper.SetConfigFile(configFile)
-	} else {
-		viper.AddConfigPath(".")
-		viper.SetConfigName("config")
-	}
-
-	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println("Can't read config:", err)
-		os.Exit(1)
-	}
-
-	if verbose {
-		log.SetLevel(log.DebugLevel)
-	}
+	viper.BindPFlag("interval", startCmd.PersistentFlags().Lookup("interval"))
 }
